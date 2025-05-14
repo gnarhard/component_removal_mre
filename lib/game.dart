@@ -27,7 +27,10 @@ class MyGame extends FlameGame with SingleGameInstance {
         (pool, index) => RectangleComponent.square(
           size: 50,
           paint: Paint()..color = Colors.white,
-          children: [ReturningToPoolOnRemoveComponent(pool)],
+          children: [
+            ReturningToPoolOnRemoveComponent(pool),
+            RemovingAllEffectsWhenRemovedComponent(),
+          ],
         )..debugMode = true,
       );
 
@@ -74,5 +77,15 @@ class ReturningToPoolOnRemoveComponent extends Component
   void onRemove() {
     final oldParent = parent;
     removed.then((_) => pool.release(oldParent));
+  }
+}
+
+class RemovingAllEffectsWhenRemovedComponent extends Component
+    with ParentIsA<PositionComponent> {
+  @override
+  void onRemove() {
+    for (final effect in parent.children.query<Effect>()) {
+      effect.removeFromParent();
+    }
   }
 }
